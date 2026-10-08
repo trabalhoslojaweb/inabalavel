@@ -75,361 +75,222 @@
 							<article id="about">
 								<h2 class="major">Eventos</h2>
 									<!--começo-->
-										<script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <!-- Font Awesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    fontFamily: {
-                        sans: ['Inter', 'sans-serif'],
-                        heading: ['Montserrat', 'sans-serif'],
-                    },
-                    colors: {
-                        darkbg: '#0a0a0c',
-                    }
-                }
-            }
-        }
-    </script>
+										<title>Galeria de Fotos em Mosaico</title>
     <style>
-        /* Custom Scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #0a0a0c;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #27272a;
-            border-radius: 4px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #3f3f46;
+        /* Reset simples */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
         }
 
-        /* Smoothing transitions */
-        .modal-enter {
-            opacity: 0;
-            transform: scale(0.92);
-        }
-        .modal-enter-active {
-            opacity: 1;
-            transform: scale(1);
-            transition: opacity 300ms ease-out, transform 300ms cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .modal-exit {
-            opacity: 1;
-            transform: scale(1);
-        }
-        .modal-exit-active {
-            opacity: 0;
-            transform: scale(0.95);
-            transition: opacity 200ms ease-in, transform 200ms ease-in;
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #121214;
+            color: #ffffff;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
         }
 
-        /* Custom image grid layout matching dark frame styling */
-        .mosaic-item {
-            aspect-ratio: 16 / 10;
+        h1 {
+            margin-bottom: 20px;
+            font-size: 1.8rem;
+            text-align: center;
+        }
+
+        /* Grade do Mosaico (Responsiva) */
+        .mosaico-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+            gap: 12px;
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Item individual do mosaico */
+        .foto-card {
+            width: 100%;
+            aspect-ratio: 4 / 3;
+            overflow: hidden;
+            border-radius: 8px;
+            cursor: pointer;
+            background-color: #202024;
+            border: 1px solid #2e2e38;
+            transition: transform 0.2s ease, border-color 0.2s ease;
+        }
+
+        .foto-card:hover {
+            transform: scale(1.02);
+            border-color: #6366f1;
+        }
+
+        .foto-card img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            display: block;
+        }
+
+        /* Fundo escuro atrás da caixa (Backdrop) */
+        .modal-fundo {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.75);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 15px;
+        }
+
+        /* Exibe o fundo do modal quando ativo */
+        .modal-fundo.ativo {
+            display: flex;
+        }
+
+        /* Caixa maior do modal (NÃO ocupa a tela inteira) */
+        .modal-caixa {
+            background-color: #202024;
+            border: 1px solid #383842;
+            border-radius: 12px;
+            padding: 20px;
+            width: 100%;
+            max-width: 600px; /* Define a largura máxima da caixa */
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.6);
+        }
+
+        /* Botão de Fechar (X) */
+        .btn-fechar {
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            background: none;
+            border: none;
+            color: #aaaaaa;
+            font-size: 26px;
+            cursor: pointer;
+        }
+
+        .btn-fechar:hover {
+            color: #ffffff;
+        }
+
+        /* Imagem ampliada na caixa */
+        .modal-caixa img {
+            width: 100%;
+            max-height: 55vh;
+            object-fit: contain;
+            border-radius: 6px;
+            margin-top: 10px;
+            margin-bottom: 12px;
+        }
+
+        /* Título e legenda dentro da caixa */
+        .modal-titulo {
+            font-size: 1.1rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ffffff;
+        }
+
+        .modal-legenda {
+            font-size: 0.9rem;
+            color: #a1a1aa;
+            text-align: center;
         }
     </style>
 </head>
-<body class="bg-darkbg text-zinc-100 font-sans min-h-screen selection:bg-white selection:text-black antialiased flex flex-col">
+<body>
 
-    <header class="w-full py-6 px-4 md:px-8 border-b border-zinc-900/80 bg-black/40 backdrop-blur-md sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div class="w-8 h-8 rounded-lg bg-gradient-to-tr from-indigo-500 via-purple-500 to-pink-500 flex items-center justify-center text-white font-bold text-xs shadow-lg shadow-indigo-500/20">
-                    <i class="fa-solid fa-shapes"></i>
-                </div>
-                <h1 class="text-lg md:text-xl font-heading font-semibold tracking-wider text-white uppercase">
-                   <span class="text-zinc-500 text-xs tracking-normal font-normal font-sans ml-2 hidden sm:inline">Galeria Fotográfica</span>
-                </h1>
-            </div>
+    <h1>Mosaico de Fotos</h1>
 
-            <!-- Total count badge -->
-            <div class="text-xs text-zinc-400 bg-zinc-900/80 px-3 py-1.5 rounded-full border border-zinc-800 flex items-center gap-2">
-                <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span>12 Fotos</span>
-            </div>
+    <!-- Grade com as fotos da sua pasta local /img -->
+    <div class="mosaico-grid">
+        <div class="foto-card" onclick="abrirFoto('img/foto1.png', 'Foto 01', 'Descrição da foto 1')">
+            <img src="img/foto1.png" alt="Foto 1">
         </div>
-    </header>
-
-    <main class="flex-1 max-w-[1600px] w-full mx-auto p-2 sm:p-4 md:p-6 my-auto">
-        <!-- 4 Colunas x 3 Linhas no Desktop -->
-        <div id="mosaic-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2 md:gap-3">
-            <!-- As imagens serão inseridas dinamicamente via JS com dados de alta qualidade -->
+        <div class="foto-card" onclick="abrirFoto('img/foto2.png', 'Foto 02', 'Descrição da foto 2')">
+            <img src="img/foto2.png" alt="Foto 2">
         </div>
-    </main>
+        <div class="foto-card" onclick="abrirFoto('img/foto3.png', 'Foto 03', 'Descrição da foto 3')">
+            <img src="img/foto3.png" alt="Foto 3">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto4.png', 'Foto 04', 'Descrição da foto 4')">
+            <img src="img/foto4.png" alt="Foto 4">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto5.png', 'Foto 05', 'Descrição da foto 5')">
+            <img src="img/foto5.png" alt="Foto 5">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto6.png', 'Foto 06', 'Descrição da foto 6')">
+            <img src="img/foto6.png" alt="Foto 6">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto7.png', 'Foto 07', 'Descrição da foto 7')">
+            <img src="img/foto7.png" alt="Foto 7">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto8.png', 'Foto 08', 'Descrição da foto 8')">
+            <img src="img/foto8.png" alt="Foto 8">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto9.png', 'Foto 09', 'Descrição da foto 9')">
+            <img src="img/foto9.png" alt="Foto 9">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto10.png', 'Foto 10', 'Descrição da foto 10')">
+            <img src="img/foto10.png" alt="Foto 10">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto11.png', 'Foto 11', 'Descrição da foto 11')">
+            <img src="img/foto11.png" alt="Foto 11">
+        </div>
+        <div class="foto-card" onclick="abrirFoto('img/foto12.png', 'Foto 12', 'Descrição da foto 12')">
+            <img src="img/foto12.png" alt="Foto 12">
+        </div>
+    </div>
 
-    <footer class="py-6 border-t border-zinc-900/60 text-center text-xs text-zinc-600">
-        <p>© 2026 Mosaico Fotográfico. Clique em qualquer foto para destacar.</p>
-    </footer>
-
-    <!-- MODAL POPUP EM DESTAQUE -->
-    <div id="photo-modal" class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 md:p-10 opacity-0 pointer-events-none transition-opacity duration-300">
-        
-        <!-- Backdrop Desfocado Escuro -->
-        <div id="modal-backdrop" class="absolute inset-0 bg-black/80 backdrop-blur-md transition-opacity duration-300"></div>
-
-        <!-- Container do Modal -->
-        <div id="modal-container" class="relative z-10 w-full max-w-4xl max-h-[90vh] bg-zinc-900 rounded-lg overflow-hidden shadow-2xl border border-zinc-800/80 flex flex-col modal-enter transition-all duration-300">
-            
-            <!-- Botão Fechar (X) estilo minimalista -->
-            <button id="close-modal-btn" aria-label="Fechar" class="absolute top-3 right-3 z-30 w-10 h-10 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition-all duration-200 border border-white/10 hover:scale-105 active:scale-95 focus:outline-none">
-                <i class="fa-solid fa-xmark text-lg"></i>
-            </button>
-
-            <!-- Botão Navegação Anterior -->
-            <button id="prev-btn" aria-label="Foto anterior" class="absolute left-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition-all duration-200 border border-white/10 hover:scale-105 active:scale-95 focus:outline-none">
-                <i class="fa-solid fa-chevron-left text-sm sm:text-base"></i>
-            </button>
-
-            <!-- Botão Navegação Próximo -->
-            <button id="next-btn" aria-label="Próxima foto" class="absolute right-3 top-1/2 -translate-y-1/2 z-30 w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black/50 hover:bg-black/80 text-white flex items-center justify-center transition-all duration-200 border border-white/10 hover:scale-105 active:scale-95 focus:outline-none">
-                <i class="fa-solid fa-chevron-right text-sm sm:text-base"></i>
-            </button>
-
-            <!-- Área da Imagem do Modal com Gradiente Inferior de Texto -->
-            <div class="relative w-full h-full flex items-center justify-center bg-black overflow-hidden group">
-                <img id="modal-img" src="" alt="" class="w-full max-h-[82vh] object-contain object-center transition-all duration-300">
-
-                <!-- Overlay de Gradiente com Texto (Semelhante à imagem de referência) -->
-                <div class="absolute bottom-0 left-0 right-0 p-6 sm:p-8 md:p-10 bg-gradient-to-t from-black via-black/80 to-transparent flex flex-col justify-end text-left pointer-events-none">
-                    <h2 id="modal-title" class="text-white font-heading font-bold text-sm sm:text-base md:text-lg tracking-widest uppercase mb-1.5 drop-shadow-md">
-                        SED CONSEQUAT PHASELLUS
-                    </h2>
-                    <p id="modal-desc" class="text-zinc-300 text-xs sm:text-sm font-light max-w-2xl leading-relaxed drop-shadow">
-                        Nunc blandit nisi ligula magna sodales lectus elementum non. Integer id venenatis velit.
-                    </p>
-                </div>
-            </div>
+    <!-- Caixa de destaque (Modal) -->
+    <div id="modal" class="modal-fundo" onclick="fecharAoClicarFora(event)">
+        <div class="modal-caixa">
+            <button class="btn-fechar" onclick="fecharFoto()">&times;</button>
+            <h2 id="modal-titulo" class="modal-titulo"></h2>
+            <img id="modal-img" src="" alt="">
+            <p id="modal-legenda" class="modal-legenda"></p>
         </div>
     </div>
 
     <script>
-        // Dados das 12 imagens da galeria de fotos (Mosaico 4x3)
-        const photoGallery = [
-            {
-                id: 1,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1506703719100-a0f3a48c0f86?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 2,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 3,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1509316975850-ff9c5deb0cd9?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 4,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 5,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 6,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1469474968028-56623f02e42e?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 7,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 8,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 9,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 10,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1426604966848-d7adac402bff?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 11,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1472214103451-9374bd1c798e?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
-            },
-            {
-                id: 12,
-                title: "",
-                description: "",
-                url: "https://images.unsplash.com/photo-1448375240586-882707db888b?auto=format&fit=crop&w=1200&q=80",
-                alt: ""
+        function abrirFoto(caminhoImagem, titulo, legenda) {
+            document.getElementById('modal-img').src = caminhoImagem;
+            document.getElementById('modal-titulo').innerText = titulo;
+            document.getElementById('modal-legenda').innerText = legenda;
+            document.getElementById('modal').classList.add('ativo');
+        }
+
+        function fecharFoto() {
+            document.getElementById('modal').classList.remove('ativo');
+        }
+
+        function fecharAoClicarFora(event) {
+            // Se clicar no fundo escuro (fora da caixa), fecha
+            if (event.target.id === 'modal') {
+                fecharFoto();
             }
-        ];
-
-        // Variável de estado para a foto ativa
-        let currentIndex = 0;
-
-        // Elementos DOM
-        const gridContainer = document.getElementById('mosaic-grid');
-        const modal = document.getElementById('photo-modal');
-        const modalBackdrop = document.getElementById('modal-backdrop');
-        const modalContainer = document.getElementById('modal-container');
-        const modalImg = document.getElementById('modal-img');
-        const modalTitle = document.getElementById('modal-title');
-        const modalDesc = document.getElementById('modal-desc');
-        const closeModalBtn = document.getElementById('close-modal-btn');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-
-        function renderGrid() {
-            gridContainer.innerHTML = '';
-
-            photoGallery.forEach((photo, index) => {
-                const itemWrapper = document.createElement('div');
-                itemWrapper.className = 'mosaic-item group relative overflow-hidden bg-zinc-900 cursor-pointer rounded-sm shadow-md transition-all duration-300 hover:shadow-2xl hover:z-10';
-                
-                itemWrapper.innerHTML = `
-                    <img 
-                        src="${photo.url}" 
-                        alt="${photo.alt}" 
-                        loading="lazy"
-                        class="w-full h-full object-cover transition-transform duration-500 ease-out group-hover:scale-105"
-                    />
-                    <!-- Overlay discreto com o título no hover -->
-                    <div class="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3">
-                        <span class="text-xs font-heading font-medium tracking-wider text-white uppercase truncate drop-shadow">
-                            ${photo.title}
-                        </span>
-                    </div>
-                `;
-
-                // Evento de clique para abrir o modal
-                itemWrapper.addEventListener('click', () => {
-                    openModal(index);
-                });
-
-                gridContainer.appendChild(itemWrapper);
-            });
         }
 
-        function openModal(index) {
-            currentIndex = index;
-            updateModalContent();
-
-            // Exibir modal removendo classes restritivas
-            modal.classList.remove('pointer-events-none', 'opacity-0');
-            modal.classList.add('opacity-100');
-
-            modalContainer.classList.remove('modal-exit', 'modal-exit-active');
-            modalContainer.classList.add('modal-enter', 'modal-enter-active');
-
-            // Impedir scroll na página de fundo
-            document.body.style.overflow = 'hidden';
-        }
-
-        function updateModalContent() {
-            const photo = photoGallery[currentIndex];
-            
-            // Transição suave na imagem
-            modalImg.style.opacity = '0.4';
-            setTimeout(() => {
-                modalImg.src = photo.url;
-                modalImg.alt = photo.alt;
-                modalTitle.textContent = photo.title;
-                modalDesc.textContent = photo.description;
-                modalImg.style.opacity = '1';
-            }, 100);
-        }
-
-        function closeModal() {
-            modalContainer.classList.remove('modal-enter-active');
-            modalContainer.classList.add('modal-exit-active');
-            modal.classList.remove('opacity-100');
-            modal.classList.add('opacity-0');
-
-            setTimeout(() => {
-                modal.classList.add('pointer-events-none');
-                document.body.style.overflow = '';
-            }, 200);
-        }
-
-        function nextPhoto() {
-            currentIndex = (currentIndex + 1) % photoGallery.length;
-            updateModalContent();
-        }
-
-        function prevPhoto() {
-            currentIndex = (currentIndex - 1 + photoGallery.length) % photoGallery.length;
-            updateModalContent();
-        }
-
-        // Event Listeners
-        closeModalBtn.addEventListener('click', closeModal);
-        modalBackdrop.addEventListener('click', closeModal);
-
-        nextBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            nextPhoto();
-        });
-
-        prevBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            prevPhoto();
-        });
-
-        // Suporte para teclas ESC, Seta Esquerda e Seta Direita
-        document.addEventListener('keydown', (e) => {
-            if (modal.classList.contains('pointer-events-none')) return;
-
-            if (e.key === 'Escape') {
-                closeModal();
-            } else if (e.key === 'ArrowRight') {
-                nextPhoto();
-            } else if (e.key === 'ArrowLeft') {
-                prevPhoto();
+        // Permitir fechar pressionando a tecla ESC
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                fecharFoto();
             }
         });
-
-        // Inicializar a grade ao carregar
-        window.addEventListener('DOMContentLoaded', renderGrid);
     </script>
-
 									<!--fim-->
 							</article>
 
